@@ -38,8 +38,6 @@ if uploaded_file is not None:
         if game is None:
             st.error("No valid game found in the PGN.")
         else:
-            st.success("Game loaded successfully!")
-
             headers = game.headers
             date = headers.get("Date", "")
             white = headers.get("White", "")
@@ -90,6 +88,9 @@ if uploaded_file is not None:
             st.subheader("📝 Add Your Notes")
             notes = st.text_area("Write notes here (not yet saved persistently):", height=150)
 
+    except Exception as e:
+        st.error(f"Something went wrong while reading the PGN: {e}")
+
 # Show performance tracking
 if not df.empty:
     st.subheader("📊 Your Performance Overview")
@@ -117,3 +118,4 @@ if not df.empty:
     # Table
     st.markdown("**All Tracked Games**")
     st.dataframe(df[["Date", "White", "Black", "Result", "TimeControl", "ECO", "Moves", "Opponent", "Score"]])
+
