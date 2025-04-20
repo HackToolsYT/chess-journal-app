@@ -1,30 +1,29 @@
 import streamlit as st
 import chess.pgn
 import io
-import datetime
 
-st.set_page_config(page_title="Chess Journal", layout="centered")
-st.title("Chess Journal Tracker")
+st.title("PGN Upload Test")
 
-# --- PGN Upload ---
-uploaded_file = st.file_uploader("Upload PGN File", type="pgn")
+uploaded_file = st.file_uploader("Upload PGN file", type=["pgn"])
 
 if uploaded_file:
-    pgn_text = uploaded_file.getvalue().decode("utf-8", errors="ignore")
-    game = chess.pgn.read_game(io.StringIO(pgn_text))
+    try:
+        # Decode and read the PGN
+        pgn_data = uploaded_file.getvalue().decode("utf-8", errors="ignore")
+        pgn_io = io.StringIO(pgn_data)
+        game = chess.pgn.read_game(pgn_io)
 
-    if game:
-        st.subheader("Game Metadata")
+        if game:
+            st.success("PGN parsed successfully!")
 
-        # Display all available headers
-        for key, value in game.headers.items():
-            st.write(f"**{key}:** {value}")
+            st.subheader("PGN Headers")
+            for key, value in game.headers.items():
+                st.write(f"**{key}**: {value}")
 
-        # Show full PGN move text
-        st.subheader("Moves")
-        moves = game.board().variation_san(game.mainline())
-        st.text_area("PGN Moves", moves, height=300)
-
-        st.success("PGN loaded successfully!")
-    else:
-        st.error("Could not read PGN file. Please check the format.")
+            st.subheader("Moves")
+            moves = game.board().variation_san(game.mainline())
+            st.text_area("Game Moves", moves, height=300)
+        else:
+            st.error("Failed to parse the PGN file.")
+    except Exception as e:
+        st.error(f"Error reading PGN: {e}")
